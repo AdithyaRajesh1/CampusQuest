@@ -14,6 +14,7 @@ struct HomeScreen: View {
     ]
 
     @State var challengeTxt = "Get Challenge"
+    @State var currentId = 0
 
     var body: some View {
         NavigationView {
@@ -48,6 +49,25 @@ struct HomeScreen: View {
                 .background(Color.blue)
                 .cornerRadius(8)
 
+                HStack {
+                    Button("Complete") {
+                        completeChall()
+                    }
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.green)
+                    .cornerRadius(8)
+
+                    Button("Skip") {
+                        getChall()
+                    }
+                    .padding()
+                    .foregroundColor(.white)
+                    .background(Color.gray)
+                    .cornerRadius(8)
+                }
+                .padding(.top, 8)
+
                 Spacer()
             }
             .background(Color(UIColor.systemGray6).edgesIgnoringSafeArea(.all))
@@ -56,7 +76,25 @@ struct HomeScreen: View {
     }
 
     func getChall() {
-        let i = Int.random(in: 0..<challList.count)
-        challengeTxt = challList[i]
+        getRandomChall { chall in
+            if chall != nil {
+                challengeTxt = chall!.text
+                currentId = chall!.id
+            } else {
+                let i = Int.random(in: 0..<challList.count)
+                challengeTxt = challList[i]
+                currentId = 0
+            }
+        }
+    }
+
+    func completeChall() {
+        if currentId == 0 {
+            getChall()
+            return
+        }
+        saveDone(challId: currentId) { ok in
+            getChall()
+        }
     }
 }

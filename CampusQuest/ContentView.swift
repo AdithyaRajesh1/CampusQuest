@@ -2,7 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        HomeScreen()
+        TabView {
+            HomeScreen()
+                .tabItem {
+                    Text("Home")
+                }
+            HistoryScreen()
+                .tabItem {
+                    Text("History")
+                }
+        }
     }
 }
 
