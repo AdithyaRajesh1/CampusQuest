@@ -164,6 +164,33 @@ func getDoneList(done: @escaping ([DoneItem]) -> Void) {
     }.resume()
 }
 
+func computeStreak(items: [DoneItem]) -> Int {
+    let dayFormatter = DateFormatter()
+    dayFormatter.dateFormat = "yyyy-MM-dd"
+    dayFormatter.timeZone = TimeZone(identifier: "UTC")
+    let calendar = Calendar(identifier: .gregorian)
+
+    var days = Set<Date>()
+    for item in items {
+        let prefix = String(item.completed_at.prefix(10))
+        if let date = dayFormatter.date(from: prefix) {
+            days.insert(date)
+        }
+    }
+
+    var day = dayFormatter.date(from: dayFormatter.string(from: Date()))!
+    if !days.contains(day) {
+        day = calendar.date(byAdding: .day, value: -1, to: day)!
+    }
+
+    var streak = 0
+    while days.contains(day) {
+        streak += 1
+        day = calendar.date(byAdding: .day, value: -1, to: day)!
+    }
+    return streak
+}
+
 func sendChall(txt: String, cat: String, done: @escaping (Bool) -> Void) {
     let url = URL(string: apiURL + "/challenges")
     if url == nil {

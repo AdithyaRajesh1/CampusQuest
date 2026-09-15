@@ -16,6 +16,7 @@ struct HomeScreen: View {
     @State var challengeTxt = "Get Challenge"
     @State var currentId = 0
     @State var weatherTxt = ""
+    @State var streak = 0
     @StateObject var loc = LocHelper()
 
     var body: some View {
@@ -25,6 +26,13 @@ struct HomeScreen: View {
                     .font(.largeTitle)
                     .bold()
                     .padding(.top, 25)
+
+                if streak > 0 {
+                    Text("\(streak) day streak")
+                        .font(.subheadline)
+                        .bold()
+                        .foregroundColor(.orange)
+                }
 
                 Spacer().frame(height: 35)
 
@@ -81,6 +89,15 @@ struct HomeScreen: View {
             }
             .background(Color(UIColor.systemGray6).edgesIgnoringSafeArea(.all))
             .navigationBarHidden(true)
+            .onAppear {
+                loadStreak()
+            }
+        }
+    }
+
+    func loadStreak() {
+        getDoneList { items in
+            streak = computeStreak(items: items)
         }
     }
 
@@ -113,6 +130,9 @@ struct HomeScreen: View {
             return
         }
         saveDone(challId: currentId, lat: loc.lat, lng: loc.lng) { ok in
+            if ok {
+                loadStreak()
+            }
             getChall()
         }
     }
