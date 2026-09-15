@@ -16,6 +16,7 @@
 		A11A0000000000000000001D /* HistoryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A0000000000000000001E /* HistoryScreen.swift */; };
 		A11A00000000000000000020 /* AddChallenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000021 /* AddChallenge.swift */; };
 		A11A00000000000000000022 /* LocHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000023 /* LocHelper.swift */; };
+		A11A00000000000000000024 /* Weather.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11A00000000000000000025 /* Weather.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		A11A0000000000000000001F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A11A00000000000000000021 /* AddChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddChallenge.swift; sourceTree = "<group>"; };
 		A11A00000000000000000023 /* LocHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocHelper.swift; sourceTree = "<group>"; };
+		A11A00000000000000000025 /* Weather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 				A11A0000000000000000001E /* HistoryScreen.swift */,
 				A11A00000000000000000021 /* AddChallenge.swift */,
 				A11A00000000000000000023 /* LocHelper.swift */,
+				A11A00000000000000000025 /* Weather.swift */,
 				A11A0000000000000000001F /* Info.plist */,
 				A11A00000000000000000006 /* Assets.xcassets */,
 				A11A0000000000000000000E /* Preview Content */,
@@ -161,6 +164,7 @@
 				A11A0000000000000000001D /* HistoryScreen.swift in Sources */,
 				A11A00000000000000000020 /* AddChallenge.swift in Sources */,
 				A11A00000000000000000022 /* LocHelper.swift in Sources */,
+				A11A00000000000000000024 /* Weather.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
