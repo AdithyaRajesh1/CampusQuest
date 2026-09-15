@@ -11,5 +11,11 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Campus Quest uses your location when you complete a challenge.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Campus Quest needs the local network to reach the backend on your computer.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
 </dict>
 </plist>

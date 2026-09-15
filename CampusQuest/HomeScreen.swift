@@ -40,6 +40,7 @@ struct HomeScreen: View {
                         .foregroundColor(.gray)
                     Text(challengeTxt)
                         .font(.title2)
+                        .foregroundColor(.black)
                         .multilineTextAlignment(.center)
                         .padding()
                 }
@@ -84,6 +85,17 @@ struct HomeScreen: View {
     }
 
     func getChall() {
+        getRandomChall { chall in
+            if chall != nil {
+                challengeTxt = chall!.text
+                currentId = chall!.id
+            } else {
+                let i = Int.random(in: 0..<challList.count)
+                challengeTxt = challList[i]
+                currentId = 0
+            }
+        }
+
         var la = 33.7756
         var lo = -84.3963
         if loc.lat != nil && loc.lng != nil {
@@ -92,18 +104,8 @@ struct HomeScreen: View {
         }
         getWeather(lat: la, lng: lo) { txt, raining in
             weatherTxt = txt
-            getRandomChall { chall in
-                if chall != nil {
-                    challengeTxt = chall!.text
-                    currentId = chall!.id
-                } else {
-                    let i = Int.random(in: 0..<challList.count)
-                    challengeTxt = challList[i]
-                    currentId = 0
-                }
-                if raining {
-                    challengeTxt = "Find the best indoor study spot on campus."
-                }
+            if raining {
+                challengeTxt = "Find the best indoor study spot on campus."
             }
         }
     }

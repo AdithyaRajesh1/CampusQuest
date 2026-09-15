@@ -7,7 +7,9 @@ func getWeather(lat: Double, lng: Double, done: @escaping (String, Bool) -> Void
         done("weather unavailable", false)
         return
     }
-    URLSession.shared.dataTask(with: url!) { data, resp, err in
+    var req = URLRequest(url: url!)
+    req.timeoutInterval = 8
+    URLSession.shared.dataTask(with: req) { data, resp, err in
         var txt = "weather unavailable"
         var raining = false
         if data != nil {
