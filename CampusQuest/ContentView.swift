@@ -11,6 +11,10 @@ struct ContentView: View {
                 .tabItem {
                     Text("History")
                 }
+            AddChallenge()
+                .tabItem {
+                    Text("Submit")
+                }
         }
     }
 }

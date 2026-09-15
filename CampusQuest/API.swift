@@ -82,3 +82,28 @@ func getDoneList(done: @escaping ([DoneItem]) -> Void) {
         }
     }.resume()
 }
+
+func sendChall(txt: String, cat: String, done: @escaping (Bool) -> Void) {
+    let url = URL(string: apiURL + "/challenges")
+    if url == nil {
+        done(false)
+        return
+    }
+    var req = URLRequest(url: url!)
+    req.httpMethod = "POST"
+    req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    req.setValue(userId, forHTTPHeaderField: "X-User-Id")
+    let body: [String: Any] = ["text": txt, "category": cat, "created_by": userId]
+    req.httpBody = try? JSONSerialization.data(withJSONObject: body)
+    URLSession.shared.dataTask(with: req) { data, resp, err in
+        var ok = false
+        if let http = resp as? HTTPURLResponse {
+            if http.statusCode == 201 {
+                ok = true
+            }
+        }
+        DispatchQueue.main.async {
+            done(ok)
+        }
+    }.resume()
+}
