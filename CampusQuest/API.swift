@@ -13,6 +13,8 @@ struct DoneItem: Codable, Identifiable {
     var id: Int
     var text: String
     var completed_at: String
+    var lat: Double?
+    var lng: Double?
 }
 
 func getRandomChall(done: @escaping (Chall?) -> Void) {
@@ -37,7 +39,7 @@ func getRandomChall(done: @escaping (Chall?) -> Void) {
     }.resume()
 }
 
-func saveDone(challId: Int, done: @escaping (Bool) -> Void) {
+func saveDone(challId: Int, lat: Double?, lng: Double?, done: @escaping (Bool) -> Void) {
     let url = URL(string: apiURL + "/completions")
     if url == nil {
         done(false)
@@ -47,7 +49,11 @@ func saveDone(challId: Int, done: @escaping (Bool) -> Void) {
     req.httpMethod = "POST"
     req.setValue("application/json", forHTTPHeaderField: "Content-Type")
     req.setValue(userId, forHTTPHeaderField: "X-User-Id")
-    let body: [String: Any] = ["challenge_id": challId, "user_id": userId]
+    var body: [String: Any] = ["challenge_id": challId, "user_id": userId]
+    if lat != nil && lng != nil {
+        body["lat"] = lat!
+        body["lng"] = lng!
+    }
     req.httpBody = try? JSONSerialization.data(withJSONObject: body)
     URLSession.shared.dataTask(with: req) { data, resp, err in
         var ok = false

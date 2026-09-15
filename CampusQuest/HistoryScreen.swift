@@ -17,6 +17,11 @@ struct HistoryScreen: View {
                         Text(item.completed_at)
                             .font(.caption)
                             .foregroundColor(.gray)
+                        if item.lat != nil && item.lng != nil {
+                            Text("lat: \(item.lat!) lng: \(item.lng!)")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
             }

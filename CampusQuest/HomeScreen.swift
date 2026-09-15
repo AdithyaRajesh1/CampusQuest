@@ -15,6 +15,7 @@ struct HomeScreen: View {
 
     @State var challengeTxt = "Get Challenge"
     @State var currentId = 0
+    @StateObject var loc = LocHelper()
 
     var body: some View {
         NavigationView {
@@ -93,7 +94,7 @@ struct HomeScreen: View {
             getChall()
             return
         }
-        saveDone(challId: currentId) { ok in
+        saveDone(challId: currentId, lat: loc.lat, lng: loc.lng) { ok in
             getChall()
         }
     }
