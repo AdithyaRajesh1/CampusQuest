@@ -102,11 +102,8 @@ struct HomeScreen: View {
             la = loc.lat!
             lo = loc.lng!
         }
-        getWeather(lat: la, lng: lo) { txt, raining in
+        getWeather(lat: la, lng: lo) { txt, _ in
             weatherTxt = txt
-            if raining {
-                challengeTxt = "Find the best indoor study spot on campus."
-            }
         }
     }
 
