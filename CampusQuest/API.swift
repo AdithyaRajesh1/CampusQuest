@@ -1,7 +1,8 @@
 import Foundation
 
 var apiURL = "http://127.0.0.1:5050"
-var userId = "adithya"
+var userId = ""
+var token = ""
 
 struct Chall: Codable {
     var id: Int
@@ -17,6 +18,78 @@ struct DoneItem: Codable, Identifiable {
     var lng: Double?
 }
 
+struct LoginStuff: Codable {
+    var access_token: String
+    var user_id: String
+}
+
+func loginUser(email: String, password: String, done: @escaping (Bool, String) -> Void) {
+    let url = URL(string: apiURL + "/login")!
+    var req = URLRequest(url: url)
+    req.httpMethod = "POST"
+    req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    let stuff = ["email": email, "password": password]
+    req.httpBody = try? JSONSerialization.data(withJSONObject: stuff)
+    URLSession.shared.dataTask(with: req) { data, resp, err in
+        if data == nil {
+            DispatchQueue.main.async {
+                done(false, "login failed")
+            }
+            return
+        }
+        let decoded = try? JSONDecoder().decode(LoginStuff.self, from: data!)
+        if decoded != nil {
+            if decoded!.access_token != "" {
+                token = decoded!.access_token
+                userId = decoded!.user_id
+                DispatchQueue.main.async {
+                    done(true, "")
+                }
+                return
+            }
+        }
+        DispatchQueue.main.async {
+            done(false, "login failed")
+        }
+    }.resume()
+}
+
+func signupUser(email: String, password: String, done: @escaping (Bool, String) -> Void) {
+    let url = URL(string: apiURL + "/signup")!
+    var req = URLRequest(url: url)
+    req.httpMethod = "POST"
+    req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    let stuff = ["email": email, "password": password]
+    req.httpBody = try? JSONSerialization.data(withJSONObject: stuff)
+    URLSession.shared.dataTask(with: req) { data, resp, err in
+        if data == nil {
+            DispatchQueue.main.async {
+                done(false, "signup failed")
+            }
+            return
+        }
+        let decoded = try? JSONDecoder().decode(LoginStuff.self, from: data!)
+        if decoded != nil {
+            if decoded!.access_token != "" {
+                token = decoded!.access_token
+                userId = decoded!.user_id
+                DispatchQueue.main.async {
+                    done(true, "")
+                }
+                return
+            } else {
+                DispatchQueue.main.async {
+                    done(false, "try logging in")
+                }
+                return
+            }
+        }
+        DispatchQueue.main.async {
+            done(false, "signup failed")
+        }
+    }.resume()
+}
+
 func getRandomChall(done: @escaping (Chall?) -> Void) {
     let url = URL(string: apiURL + "/challenges/random")
     if url == nil {
@@ -24,7 +97,9 @@ func getRandomChall(done: @escaping (Chall?) -> Void) {
         return
     }
     var req = URLRequest(url: url!)
-    req.setValue(userId, forHTTPHeaderField: "X-User-Id")
+    if token != "" {
+        req.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+    }
     URLSession.shared.dataTask(with: req) { data, resp, err in
         if err != nil || data == nil {
             DispatchQueue.main.async {
@@ -48,8 +123,8 @@ func saveDone(challId: Int, lat: Double?, lng: Double?, done: @escaping (Bool) -
     var req = URLRequest(url: url!)
     req.httpMethod = "POST"
     req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    req.setValue(userId, forHTTPHeaderField: "X-User-Id")
-    var body: [String: Any] = ["challenge_id": challId, "user_id": userId]
+    req.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+    var body: [String: Any] = ["challenge_id": challId]
     if lat != nil && lng != nil {
         body["lat"] = lat!
         body["lng"] = lng!
@@ -75,7 +150,7 @@ func getDoneList(done: @escaping ([DoneItem]) -> Void) {
         return
     }
     var req = URLRequest(url: url!)
-    req.setValue(userId, forHTTPHeaderField: "X-User-Id")
+    req.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
     URLSession.shared.dataTask(with: req) { data, resp, err in
         var items: [DoneItem] = []
         if data != nil {
@@ -98,8 +173,8 @@ func sendChall(txt: String, cat: String, done: @escaping (Bool) -> Void) {
     var req = URLRequest(url: url!)
     req.httpMethod = "POST"
     req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    req.setValue(userId, forHTTPHeaderField: "X-User-Id")
-    let body: [String: Any] = ["text": txt, "category": cat, "created_by": userId]
+    req.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+    let body: [String: Any] = ["text": txt, "category": cat]
     req.httpBody = try? JSONSerialization.data(withJSONObject: body)
     URLSession.shared.dataTask(with: req) { data, resp, err in
         var ok = false

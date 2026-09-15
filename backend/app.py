@@ -16,12 +16,18 @@ sb = create_client(sb_url, sb_key)
 
 
 def current_user():
-    uid = request.headers.get("X-User-Id")
-    if uid == None or uid == "":
-        data = request.get_json(silent=True)
-        if data != None:
-            uid = data.get("user_id")
-    return uid
+    h = request.headers.get("Authorization")
+    if h == None:
+        return None
+    if "Bearer" not in h:
+        return None
+    tok = h.replace("Bearer ", "")
+    try:
+        info = sb.auth.get_user(tok)
+        return info.user.id
+    except Exception as e:
+        print(e)
+        return None
 
 
 def ensure_user(uid):
@@ -54,6 +60,47 @@ def seed_if_empty():
     sb.table("challenges").insert(rows).execute()
 
 
+@app.route("/signup", methods=["POST"])
+def signup():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+    if email == None or password == None or email == "" or password == "":
+        return jsonify({"error": "need email and password"}), 400
+    try:
+        res = sb.auth.sign_up({"email": email, "password": password})
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "signup failed"}), 400
+    if res.user == None:
+        return jsonify({"error": "signup failed"}), 400
+    uid = res.user.id
+    ensure_user(uid)
+    token = ""
+    if res.session != None:
+        token = res.session.access_token
+    return jsonify({"access_token": token, "user_id": uid, "email": email}), 201
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+    if email == None or password == None or email == "" or password == "":
+        return jsonify({"error": "need email and password"}), 400
+    try:
+        res = sb.auth.sign_in_with_password({"email": email, "password": password})
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "login failed"}), 401
+    if res.user == None or res.session == None:
+        return jsonify({"error": "login failed"}), 401
+    uid = res.user.id
+    ensure_user(uid)
+    return jsonify({"access_token": res.session.access_token, "user_id": uid, "email": email})
+
+
 @app.route("/challenges/random", methods=["GET"])
 def random_chall():
     res = sb.table("challenges").select("id, text, category, created_by, created_at").execute()
@@ -81,10 +128,8 @@ def add_chall():
     if cat == None or cat == "":
         cat = "Random"
     uid = current_user()
-    if uid == None:
-        uid = data.get("created_by")
     if uid == None or uid == "":
-        uid = "anon"
+        return jsonify({"error": "need login"}), 401
     ensure_user(uid)
     if txt == None or txt.strip() == "":
         return jsonify({"error": "need text"}), 400
@@ -98,7 +143,7 @@ def add_completion():
     data = request.get_json()
     uid = current_user()
     if uid == None or uid == "":
-        return jsonify({"error": "need user"}), 401
+        return jsonify({"error": "need login"}), 401
     ensure_user(uid)
     chall_id = data.get("challenge_id")
     if chall_id == None:
@@ -115,6 +160,11 @@ def add_completion():
 
 @app.route("/completions/<user>", methods=["GET"])
 def user_completions(user):
+    uid = current_user()
+    if uid == None or uid == "":
+        return jsonify({"error": "need login"}), 401
+    if user != uid:
+        return jsonify({"error": "not your history"}), 403
     res = (
         sb.table("completions")
         .select("id, challenge_id, user_id, completed_at, lat, lng, challenges(text)")
