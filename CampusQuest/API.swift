@@ -1,6 +1,6 @@
 import Foundation
 
-var apiURL = "http://127.0.0.1:5050"
+var apiURL = "https://campusquest-hw28.onrender.com"
 var userId = ""
 var token = ""
 
