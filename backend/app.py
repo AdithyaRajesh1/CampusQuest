@@ -60,6 +60,23 @@ def seed_if_empty():
     sb.table("challenges").insert(rows).execute()
 
 
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "ok": True,
+        "msg": "campus quest api",
+        "routes": [
+            "GET /challenges/random",
+            "GET /challenges",
+            "POST /challenges",
+            "POST /completions",
+            "GET /completions/<user>",
+            "POST /signup",
+            "POST /login",
+        ],
+    })
+
+
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
@@ -196,4 +213,5 @@ def user_completions(user):
 
 if __name__ == "__main__":
     seed_if_empty()
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    port = int(os.environ.get("PORT", 5050))
+    app.run(host="0.0.0.0", port=port, debug=True)
